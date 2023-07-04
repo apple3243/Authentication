@@ -3,13 +3,21 @@
  * https://github.com/facebook/react-native
  *
  * @format
+ * @flow strict-local
  */
 
 import React from 'react';
-import {SafeAreaView, StyleSheet, Text} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
 import Navigation from './src/navigation';
+import {Amplify, Auth} from 'aws-amplify';
+import {withAuthenticator, AmplifyTheme} from 'aws-amplify-react-native';
 
-function App(): JSX.Element {
+import awsExports from './src/aws-exports';
+
+Amplify.configure(awsExports);
+
+const App = () => {
+  Auth.signOut();
   return (
     <SafeAreaView style={styles.root}>
       {/* <SignInScreen /> */}
@@ -20,7 +28,7 @@ function App(): JSX.Element {
       <Navigation />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   root: {
@@ -28,5 +36,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#F9FBFC',
   },
 });
+
+const customTheme = {
+  ...AmplifyTheme,
+  button: {
+    ...AmplifyTheme.button,
+    backgroundColor: 'blue',
+    borderRadius: 10,
+  },
+}; // overriding styles
 
 export default App;

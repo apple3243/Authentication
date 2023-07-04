@@ -1,16 +1,29 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, Alert} from 'react-native';
 import CustomInput from '../../components/CustomInput/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/core';
+import {useRoute} from '@react-navigation/native';
+import {useForm} from 'react-hook-form';
+import Auth from '@aws-amplify/api-graphql/node_modules/@aws-amplify/auth';
 
 const SignUpScreen = () => {
+  const route = useRoute();
+  const {control, handleSubmit} = useForm({
+    defaultValues: {username: 'route?.params?.username'},
+  });
   const [code, setCode] = useState('');
   const navigation = useNavigation();
-
-  const onConfirmPressed = () => {
-    navigation.navigate('Home');
-  };
+  async function onConfirmPressed(data) {
+    try {
+      const response = await Auth.confirmSignUp(data.username, data.code);
+      console.log(data.username);
+      // await Auth.confirmSignUp(data.username, data.code);
+    } catch (e) {
+      Alert.alert('Oops', e.message);
+    }
+    // navigation.navigate('Home');
+  }
 
   const onSignInPress = () => {
     navigation.navigate('SignIn');
@@ -25,6 +38,14 @@ const SignUpScreen = () => {
       <View style={styles.root}>
         <Text style={styles.title}>Confirm your email</Text>
         <CustomInput
+          name="username"
+          control={control}
+          placeholder="Username"
+          rules={{required: 'Username code is required'}}
+        />
+        <CustomInput
+          name="code"
+          control={control}
           placeholder="Enter your confirmation code"
           value={code}
           setValue={setCode}
